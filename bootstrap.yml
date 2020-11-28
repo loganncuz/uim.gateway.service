@@ -1,0 +1,112 @@
+server:
+#  servlet:
+#    contextPath: /gateway
+  port: 5050
+
+hystrix:
+  command:
+    default:
+      execution:
+        iso lation:
+          thread:
+            timeoutInMilliseconds: 30000
+
+
+ribbon:
+  ReadTimeout: 60000
+  connection-timeout: 3000
+  eureka:
+    enabled: true
+
+zuul:
+  ignoredServices: '*'
+  host:
+    time-to-live: -1
+    connect-timeout-millis: 5000
+    max-per-route-connections: 10000
+    max-total-connections: 5000
+    socket-timeout-millis: 60000
+    semaphore:
+      max-semaphores: 500
+
+  routes:
+    auth-service:
+      path: /authorization/** #path that will be intercepted
+      url: authorization-server #which url the request will e mapped to
+      stripPrefix: false #if zuul should replace the "/uaa/" segment
+      sensitiveHeaders:
+
+    account-service:
+        path: /accounts/**
+        serviceId: account-service
+        stripPrefix: false
+        sensitiveHeaders:
+    test-service:
+      path: /whoami/**
+      url: test #which url the request will be mapped to
+      stripPrefix: false #if zuul should replace the "/uaa/" segment
+      sensitiveHeaders:
+    uim-custom-service:
+      path: /uim.api.custom/**
+      url: uim-api-custom-service #which url the request will be mapped to
+      stripPrefix: false #if zuul should replace the "/uaa/" segment
+      sensitiveHeaders:
+    uim-task-scheduler:
+      path: /uim.task/**
+      url: uim-task-scheduler #which url the request will be mapped to
+      stripPrefix: false #if zuul should replace the "/uaa/" segment
+      sensitiveHeaders:
+    uim-robot:
+      path: /uim.api.robot/**
+      serviceId: uim-api-robot-service #which url the request will be mapped to
+      stripPrefix: false #if zuul should replace the "/uaa/" segment
+      sensitiveHeaders:
+
+
+eureka:
+  instance:
+    leaseRenewalIntervalInSeconds: 1
+    leaseExpirationDurationInSeconds: 2
+    #    statusPageUrlPath: /diagnostics/admin/info
+    #    healthCheckUrlPath: /diagnostics/admin/health
+#    metadataMap:
+#      management:
+#        base-url: ${server.servlet.contextPath}
+#        context-path: ${server.servlet.context-path}/actuator
+#      user:
+#        name: test
+#        password: password
+
+spring:
+#  jackson:
+#    serialization:
+#      write-dates-as-timestamps: false
+  application:
+    name: gateway-service
+  profiles:
+    active: development
+#  security:
+#    user:
+#      name: test
+#      password: password
+  cloud:
+    config:
+      uri: http://localhost:8888
+      username: root
+      password: s3cr3t
+
+logging:
+  file: ../log_app/sample-boot-application.log
+  pattern:
+    file: "%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(%5p) %clr(${PID}){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n%wEx"
+  group:
+    logging.group.error: com.ncuz.gateway.Application,org.exampledriven.eureka
+    logging.group.debug: com.ncuz.gateway.Application,org.exampledriven.eureka.customer.shared.CustomerServiceFeignClient
+    logging.group.warn: com.ncuz.gateway.Application,java.lang.RuntimeException
+    logging.group.info: com.ncuz.gateway.Application
+    logging.group.off: com.ncuz.gateway.Application
+
+management:
+  endpoint:
+    logfile:
+      external_file: ./log_app/${spring.application.name}.log
